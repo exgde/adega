@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "runtimes": [
+    {
+      "id": "wine-exemplo-11.0",
+      "displayName": "Wine 11.0 (EXEMPLO)",
+      "version": "11.0",
+      "url": "https://example.com/releases/wine-11.0-macos.tar.xz",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size": 0,
+      "wineRoot": "Wine Crossover.app/Contents/Resources/wine",
+      "notes": "EXEMPLO: troque pela URL do seu build (GitHub Releases) e gere o sha256 com scripts/manifest-entry.sh."
+    }
+  ],
+  "components": [
+    {
+      "id": "dxmt-exemplo",
+      "kind": "dxmt",
+      "version": "0.0",
+      "url": "https://example.com/releases/dxmt.tar.gz",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "root": "dxmt",
+      "license": "ver o repositório do DXMT",
+      "notes": "EXEMPLO: confira o layout real do release do DXMT e ajuste os caminhos abaixo.",
+      "files": [
+        { "source": "x86_64-unix/winemetal.so", "destination": "lib/wine/x86_64-unix/winemetal.so", "scope": "runtime" },
+        { "source": "x86_64-windows/winemetal.dll", "destination": "lib/wine/x86_64-windows/winemetal.dll", "scope": "runtime" },
+        { "source": "x86_64-windows/d3d11.dll", "destination": "drive_c/windows/system32/d3d11.dll", "scope": "bottle" },
+        { "source": "x86_64-windows/dxgi.dll", "destination": "drive_c/windows/system32/dxgi.dll", "scope": "bottle" },
+        { "source": "x86_64-windows/d3d10core.dll", "destination": "drive_c/windows/system32/d3d10core.dll", "scope": "bottle" }
+      ]
+    },
+    {
+      "id": "dxvk-macos-exemplo",
+      "kind": "dxvk",
+      "version": "0.0",
+      "url": "https://example.com/releases/dxvk-macOS.tar.gz",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "root": "dxvk",
+      "license": "zlib",
+      "notes": "EXEMPLO: no macOS use o fork DXVK-macOS (compatível com MoltenVK).",
+      "files": [
+        { "source": "x64", "destination": "drive_c/windows/system32", "scope": "bottle" },
+        { "source": "x32", "destination": "drive_c/windows/syswow64", "scope": "bottle" }
+      ]
+    }
+  ]
+}

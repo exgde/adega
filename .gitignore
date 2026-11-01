@@ -1,0 +1,10 @@
+.DS_Store
+.build/
+.swiftpm/
+build/
+DerivedData/
+xcuserdata/
+*.xcodeproj
+*.xcworkspace
+*.zip
+adega-cli

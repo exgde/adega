@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  core-linux:
+    name: Core (Linux)
+    runs-on: ubuntu-24.04
+    container: swift:6.1-noble
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compilar
+        run: swift build --package-path Core
+      - name: Testes
+        run: swift test --package-path Core
+
+  macos:
+    name: App + CLI (macOS)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Testes do Core
+        run: swift test --package-path Core
+
+      - name: CLI (release)
+        run: swift build -c release --package-path Core --product adega
+
+      - name: Gerar projeto Xcode
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Compilar o app
+        run: |
+          xcodebuild -project Adega.xcodeproj -scheme Adega -configuration Release \
+            -destination 'generic/platform=macOS' -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO build
+
+      - name: Assinar (ad-hoc) e empacotar
+        run: |
+          codesign --force --deep --sign - build/Build/Products/Release/Adega.app
+          ditto -c -k --keepParent build/Build/Products/Release/Adega.app Adega.zip
+          cp Core/.build/release/adega adega-cli
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Adega
+          path: |
+            Adega.zip
+            adega-cli

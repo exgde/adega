@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "presets": [
+    {
+      "id": "steam",
+      "name": "Steam (EXEMPLO)",
+      "executables": ["steam.exe", "SteamSetup.exe"],
+      "windowsVersion": "win10",
+      "msync": true,
+      "winetricks": ["corefonts"],
+      "notes": "EXEMPLO de receita. Teste e ajuste antes de publicar."
+    },
+    {
+      "id": "jogo-dx11-generico",
+      "name": "Jogo DirectX 11 (EXEMPLO)",
+      "executables": ["exemplo-dx11.exe"],
+      "graphicsBackend": "dxmt",
+      "winetricks": ["vcrun2022"],
+      "notes": "EXEMPLO: DX11 costuma ir melhor com DXMT ou D3DMetal."
+    },
+    {
+      "id": "jogo-dx12-generico",
+      "name": "Jogo DirectX 12 (EXEMPLO)",
+      "executables": ["exemplo-dx12.exe"],
+      "graphicsBackend": "d3dmetal",
+      "windowsVersion": "win11",
+      "advertiseAVX": true,
+      "notes": "EXEMPLO: DX12 precisa do D3DMetal; muitos jogos novos exigem AVX (macOS 15+)."
+    }
+  ]
+}

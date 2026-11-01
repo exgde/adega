@@ -1,0 +1,55 @@
+# Gere o projeto Xcode com:  brew install xcodegen && xcodegen generate
+name: Adega
+options:
+  bundleIdPrefix: app.adega
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+
+packages:
+  AdegaCore:
+    path: Core
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MACOSX_DEPLOYMENT_TARGET: "14.0"
+
+targets:
+  Adega:
+    type: application
+    platform: macOS
+    sources:
+      - path: App
+    dependencies:
+      - package: AdegaCore
+        product: AdegaCore
+    settings:
+      base:
+        # Troque pelo seu identificador antes de distribuir.
+        PRODUCT_BUNDLE_IDENTIFIER: app.adega.Adega
+        PRODUCT_NAME: Adega
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Adega
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.utilities
+        # Sem sandbox: o app precisa executar o Wine baixado (por isso fica fora da Mac App Store).
+        ENABLE_APP_SANDBOX: NO
+        # Hardened Runtime é exigido para notarização.
+        ENABLE_HARDENED_RUNTIME: YES
+        # Assinatura ad-hoc para rodar localmente sem conta da Apple.
+        # Para distribuir: CODE_SIGN_IDENTITY = "Developer ID Application" + DEVELOPMENT_TEAM.
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: "-"
+        DEVELOPMENT_TEAM: ""
+
+schemes:
+  Adega:
+    build:
+      targets:
+        Adega: all
+    run:
+      config: Debug
+    archive:
+      config: Release
