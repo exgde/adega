@@ -19,12 +19,22 @@ public final class BottleManager: @unchecked Sendable {
             .sorted { $0.config.displayName.localizedStandardCompare($1.config.displayName) == .orderedAscending }
     }
 
+    /// Aceita o id com qualquer combinação de maiúsculas/minúsculas, mas devolve sempre
+    /// o nome real da pasta. O APFS do macOS normalmente não diferencia maiúsculas, então
+    /// sem isso "meus jogos" abriria a mesma pasta de "Meus Jogos" com outro id.
     public func bottle(id: String) throws -> Bottle {
-        let url = paths.bottles.appendingPathComponent(id, isDirectory: true)
-        guard fileManager.fileExists(atPath: url.appendingPathComponent(Bottle.configFileName).path) else {
+        guard let name = canonicalDirectoryName(for: id) else {
             throw AdegaError.bottleNotFound(id)
         }
-        return try load(from: url)
+        return try load(from: paths.bottles.appendingPathComponent(name, isDirectory: true))
+    }
+
+    /// Nome real da pasta da bottle: igualdade exata primeiro, depois sem diferenciar maiúsculas.
+    func canonicalDirectoryName(for id: String) -> String? {
+        let names = ((try? fileManager.contentsOfDirectory(atPath: paths.bottles.path)) ?? []).filter { name in
+            fileManager.fileExists(atPath: paths.bottles.appendingPathComponent(name).appendingPathComponent(Bottle.configFileName).path)
+        }
+        return names.first { $0 == id } ?? names.first { $0.caseInsensitiveCompare(id) == .orderedSame }
     }
 
     /// Procura por id (nome da pasta) ou pelo nome exibido.
@@ -49,6 +59,8 @@ public final class BottleManager: @unchecked Sendable {
     public func prepare(name: String, config: BottleConfig) throws -> Bottle {
         let id = try NameSanitizer.identifier(from: name)
         let url = paths.bottles.appendingPathComponent(id, isDirectory: true)
+        // Mesma regra em macOS e Linux: "Jogos" e "jogos" são a mesma bottle.
+        if let existing = canonicalDirectoryName(for: id) { throw AdegaError.bottleAlreadyExists(existing) }
         guard !fileManager.fileExists(atPath: url.path) else { throw AdegaError.bottleAlreadyExists(id) }
         try fileManager.createDirectory(at: url, withIntermediateDirectories: true)
         var config = config

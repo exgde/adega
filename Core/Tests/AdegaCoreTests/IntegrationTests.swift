@@ -90,11 +90,17 @@ final class IntegrationTests: XCTestCase {
         XCTAssertTrue(calls[2].hasPrefix(#"wine reg add HKCU\Software\Wine\Mac Driver /v RetinaMode /t REG_SZ /d y /f"#))
         XCTAssertTrue(calls[0].contains("MSYNC=1"))
 
+        // O id devolvido é sempre o nome real da pasta, digitado de qualquer jeito.
         XCTAssertEqual(try manager.find("meus jogos").id, "Meus Jogos")
-        do {
-            _ = try await manager.create(name: "Meus Jogos", config: config, runtime: runtime)
-            XCTFail("nome duplicado deveria falhar")
-        } catch AdegaError.bottleAlreadyExists {}
+        XCTAssertEqual(try manager.bottle(id: "MEUS JOGOS").id, "Meus Jogos")
+        for duplicate in ["Meus Jogos", "meus jogos"] {
+            do {
+                _ = try await manager.create(name: duplicate, config: config, runtime: runtime)
+                XCTFail("nome duplicado deveria falhar: \(duplicate)")
+            } catch AdegaError.bottleAlreadyExists(let existing) {
+                XCTAssertEqual(existing, "Meus Jogos")
+            }
+        }
 
         // Mudanças: só roda o que mudou.
         var updated = bottle
@@ -207,7 +213,8 @@ final class IntegrationTests: XCTestCase {
         let last = try XCTUnwrap(Fixtures.calls(in: bottle).last)
         XCTAssertTrue(last.hasPrefix("wine \(exe.path) -windowed"))
         XCTAssertTrue(last.contains("OVERRIDES=d3d10core=n,b;d3d11=n,b;d3d9=n,b;dxgi=n,b"))
-        XCTAssertTrue(last.hasSuffix("PWD=\(exe.deletingLastPathComponent().path)"))
+        // Só o final do caminho: no macOS o /var do temporário é link para /private/var.
+        XCTAssertTrue(last.hasSuffix("/drive_c/Jogo"), last)
 
         let logs = launcher.logFiles(for: bottle)
         XCTAssertEqual(logs.count, 1)
